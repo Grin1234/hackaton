@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Code Review Assistant - Phase 2 Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    .status {
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .success {
+      color: #22c55e;
+      font-weight: bold;
+    }
+    .section {
+      margin: 20px 0;
+      padding: 15px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    input {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 300px;
+      margin: 5px;
+    }
+    .log {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    .log-entry {
+      margin: 5px 0;
+    }
+    .log-entry.file-change {
+      color: #60a5fa;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎉 AI Code Review Assistant</h1>
+  <p>Phase 2: File Monitoring System Test</p>
+  
+  <div class="status">
+    <p class="success">✅ Phase 1 Complete: Basic Electron Setup</p>
+    <p style="margin-top: 10px; font-size: 14px; color: #888;">
+      Electron Version: <span id="electron-version"></span>
+    </p>
+  </div>
+
+  <div class="section">
+    <h3>Phase 4: Review Results</h3>
+    <div>
+      <input type="text" id="review-file-path" placeholder="/path/to/file" value="/home/traian/Hackaton/Workspace/Test.c">
+      <button onclick="getReview()">View Review</button>
+      <button onclick="listReviews()">List All Reviews</button>
+    </div>
+    <div id="review-status" style="margin-top: 10px; color: #666;"></div>
+    <div id="review-results" style="margin-top: 10px;"></div>
+  </div>
+
+  <div class="section">
+    <h3>Phase 3: Workspace Management</h3>
+    <div>
+      <input type="text" id="workspace-path" placeholder="/path/to/workspace" value="/home/traian/Hackaton/Workspace">
+      <button onclick="addWorkspace()">Add Workspace</button>
+      <button onclick="removeWorkspace()">Remove Workspace</button>
+      <button onclick="listWorkspaces()">List Workspaces</button>
+    </div>
+    <div id="workspace-status" style="margin-top: 10px; color: #666;"></div>
+    <div id="workspace-list" style="margin-top: 10px; font-size: 14px;"></div>
+  </div>
+
+  <div class="section">
+    <h3>Phase 2: File Watcher Test</h3>
+    <div>
+      <input type="text" id="watcher-path" placeholder="/path/to/workspace" value="/home/traian/Hackaton/Workspace">
+      <button onclick="watchWorkspace()">Watch Workspace</button>
+      <button onclick="unwatchWorkspace()">Stop Watching</button>
+    </div>
+    <div id="watch-status" style="margin-top: 10px; color: #666;"></div>
+  </div>
+
+  <div class="section">
+    <h3>File Change Log</h3>
+    <div id="file-log" class="log">
+      <div class="log-entry">Waiting for file changes...</div>
+    </div>
+  </div>
+
+  <script>
+    // Display Electron version using IPC
+    try {
+      if (window.electronAPI && window.electronAPI.test) {
+        const version = window.electronAPI.test.getVersion();
+        document.getElementById('electron-version').textContent = version;
+        
+        // Test IPC communication
+        const pingResult = window.electronAPI.test.ping();
+        console.log('IPC Test:', pingResult);
+      } else {
+        document.getElementById('electron-version').textContent = 'Electron (Preload not loaded)';
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      document.getElementById('electron-version').textContent = 'Error: ' + error.message;
+    }
+
+    // Phase 4: Review Functions
+    async function getReview() {
+      const filePath = document.getElementById('review-file-path').value.trim();
+      if (!filePath) {
+        alert('Please enter a file path');
+        return;
+      }
+
+      const statusDiv = document.getElementById('review-status');
+      const resultsDiv = document.getElementById('review-results');
+      
+      statusDiv.textContent = 'Loading review...';
+      statusDiv.style.color = '#666';
+
+      try {
+        if (window.electronAPI && window.electronAPI.review) {
+          const review = await window.electronAPI.review.get(filePath);
+          if (review) {
+            statusDiv.textContent = `✅ Review found for ${review.fileName}`;
+            statusDiv.style.color = '#22c55e';
+            
+            // Display review
+            resultsDiv.innerHTML = `
+              <div style="margin-top: 15px; padding: 15px; background: #f9fafb; border-radius: 6px;">
+                <h4 style="margin-top: 0;">Review Details</h4>
+                <p><strong>Status:</strong> <span style="color: ${review.status === 'completed' ? '#22c55e' : '#ef4444'}">${review.status}</span></p>
+                <p><strong>Findings:</strong> ${review.findings.length}</p>
+                <p><strong>Language:</strong> ${review.language}</p>
+                
+                ${review.findings.length > 0 ? `
+                  <h5 style="margin-top: 15px;">Findings:</h5>
+                  <div style="margin-top: 10px;">
+                    ${review.findings.map((f, i) => `
+                      <div style="margin: 10px 0; padding: 10px; background: white; border-left: 4px solid ${
+                        f.severity === 'critical' ? '#ef4444' :
+                        f.severity === 'high' ? '#f97316' :
+                        f.severity === 'medium' ? '#eab308' : '#3b82f6'
+                      }; border-radius: 4px;">
+                        <strong>[${f.severity.toUpperCase()}]</strong> ${f.lineNumber ? `Line ${f.lineNumber}: ` : ''}${f.message}
+                        ${f.suggestion ? `<div style="margin-top: 5px; font-size: 12px; color: #666;">💡 ${f.suggestion}</div>` : ''}
+                      </div>
+                    `).join('')}
+                  </div>
+                ` : ''}
+                
+                ${review.review ? `
+                  <h5 style="margin-top: 15px;">Review Text:</h5>
+                  <pre style="background: white; padding: 10px; border-radius: 4px; font-size: 12px; overflow-x: auto; max-height: 300px; overflow-y: auto;">${review.review}</pre>
+                ` : ''}
+              </div>
+            `;
+          } else {
+            statusDiv.textContent = `❌ No review found for ${filePath}`;
+            statusDiv.style.color = '#ef4444';
+            resultsDiv.innerHTML = '';
+          }
+        }
+      } catch (error) {
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+        console.error('Get review error:', error);
+      }
+    }
+
+    async function listReviews() {
+      const workspacePath = document.getElementById('workspace-path').value.trim();
+      if (!workspacePath) {
+        alert('Please enter a workspace path first');
+        return;
+      }
+
+      const statusDiv = document.getElementById('review-status');
+      const resultsDiv = document.getElementById('review-results');
+      
+      statusDiv.textContent = 'Loading reviews...';
+      
+      try {
+        if (window.electronAPI && window.electronAPI.review) {
+          const reviews = await window.electronAPI.review.list(workspacePath);
+          if (reviews.length === 0) {
+            statusDiv.textContent = 'No reviews found for this workspace';
+            resultsDiv.innerHTML = '';
+          } else {
+            statusDiv.textContent = `✅ Found ${reviews.length} review(s)`;
+            statusDiv.style.color = '#22c55e';
+            
+            resultsDiv.innerHTML = `
+              <div style="margin-top: 15px;">
+                ${reviews.map(r => `
+                  <div style="margin: 10px 0; padding: 10px; background: #f9fafb; border-radius: 6px;">
+                    <strong>${r.fileName}</strong> - 
+                    <span style="color: ${r.status === 'completed' ? '#22c55e' : r.status === 'processing' ? '#eab308' : '#ef4444'}">${r.status}</span> - 
+                    ${r.findings.length} findings - 
+                    ${new Date(r.updatedAt).toLocaleString()}
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          }
+        }
+      } catch (error) {
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+      }
+    }
+
+    // Phase 3: Workspace Management Functions
+    async function addWorkspace() {
+      const path = document.getElementById('workspace-path').value.trim();
+      if (!path) {
+        alert('Please enter a workspace path');
+        return;
+      }
+
+      const statusDiv = document.getElementById('workspace-status');
+      statusDiv.textContent = 'Adding workspace...';
+      statusDiv.style.color = '#666';
+
+      try {
+        if (window.electronAPI && window.electronAPI.workspace) {
+          const result = await window.electronAPI.workspace.add(path);
+          if (result.success) {
+            statusDiv.textContent = `✅ Workspace added: ${result.workspace.name}`;
+            statusDiv.style.color = '#22c55e';
+            addLogEntry(`Workspace added: ${result.workspace.name}`, 'info');
+            await listWorkspaces(); // Refresh list
+          } else {
+            statusDiv.textContent = `❌ Error: ${result.error}`;
+            statusDiv.style.color = '#ef4444';
+          }
+        } else {
+          statusDiv.textContent = '❌ Workspace API not available';
+          statusDiv.style.color = '#ef4444';
+        }
+      } catch (error) {
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+        console.error('Add workspace error:', error);
+      }
+    }
+
+    async function removeWorkspace() {
+      const path = document.getElementById('workspace-path').value.trim();
+      if (!path) {
+        alert('Please enter a workspace path');
+        return;
+      }
+
+      const statusDiv = document.getElementById('workspace-status');
+      try {
+        if (window.electronAPI && window.electronAPI.workspace) {
+          const result = await window.electronAPI.workspace.remove(path);
+          if (result.success) {
+            statusDiv.textContent = `✅ Workspace removed: ${path}`;
+            statusDiv.style.color = '#22c55e';
+            addLogEntry(`Workspace removed: ${path}`, 'info');
+            await listWorkspaces(); // Refresh list
+          } else {
+            statusDiv.textContent = `❌ Error: ${result.error || 'Workspace not found'}`;
+            statusDiv.style.color = '#ef4444';
+          }
+        }
+      } catch (error) {
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+      }
+    }
+
+    async function listWorkspaces() {
+      const listDiv = document.getElementById('workspace-list');
+      try {
+        if (window.electronAPI && window.electronAPI.workspace) {
+          const workspaces = await window.electronAPI.workspace.list();
+          if (workspaces.length === 0) {
+            listDiv.innerHTML = '<p style="color: #888;">No workspaces added yet</p>';
+          } else {
+            listDiv.innerHTML = '<p style="margin-bottom: 10px;"><strong>Workspaces:</strong></p>' +
+              workspaces.map(ws => 
+                `<div style="padding: 5px; margin: 5px 0; background: #f0f0f0; border-radius: 4px;">
+                  <strong>${ws.name}</strong><br>
+                  <span style="font-size: 12px; color: #666;">${ws.path}</span>
+                </div>`
+              ).join('');
+          }
+        }
+      } catch (error) {
+        listDiv.innerHTML = `<p style="color: #ef4444;">Error: ${error.message}</p>`;
+      }
+    }
+
+    // Phase 2: File Watcher Functions
+    async function watchWorkspace() {
+      const path = document.getElementById('watcher-path').value.trim();
+      if (!path) {
+        alert('Please enter a workspace path');
+        return;
+      }
+
+      const statusDiv = document.getElementById('watch-status');
+      statusDiv.textContent = 'Starting to watch...';
+      statusDiv.style.color = '#666';
+
+      try {
+        if (window.electronAPI && window.electronAPI.fileWatcher) {
+          const result = await window.electronAPI.fileWatcher.watch(path);
+          if (result.success) {
+            statusDiv.textContent = `✅ ${result.message}`;
+            statusDiv.style.color = '#22c55e';
+            addLogEntry(`Started watching: ${path}`, 'info');
+          } else {
+            statusDiv.textContent = `❌ Error: ${result.error}`;
+            statusDiv.style.color = '#ef4444';
+          }
+        } else {
+          statusDiv.textContent = '❌ File watcher API not available';
+          statusDiv.style.color = '#ef4444';
+        }
+      } catch (error) {
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+        console.error('Watch error:', error);
+      }
+    }
+
+    async function unwatchWorkspace() {
+      const path = document.getElementById('watcher-path').value.trim();
+      if (!path) {
+        alert('Please enter a workspace path');
+        return;
+      }
+
+      const statusDiv = document.getElementById('watch-status');
+      try {
+        if (window.electronAPI && window.electronAPI.fileWatcher) {
+          const result = await window.electronAPI.fileWatcher.unwatch(path);
+          if (result.success) {
+            statusDiv.textContent = `✅ ${result.message}`;
+            statusDiv.style.color = '#22c55e';
+            addLogEntry(`Stopped watching: ${path}`, 'info');
+          } else {
+            statusDiv.textContent = `❌ Error: ${result.error}`;
+            statusDiv.style.color = '#ef4444';
+          }
+        }
+      } catch (error) {
+        statusDiv.textContent = `❌ Error: ${error.message}`;
+        statusDiv.style.color = '#ef4444';
+      }
+    }
+
+    function addLogEntry(message, type = 'info') {
+      const logDiv = document.getElementById('file-log');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type === 'file-change' ? 'file-change' : ''}`;
+      const timestamp = new Date().toLocaleTimeString();
+      entry.textContent = `[${timestamp}] ${message}`;
+      logDiv.insertBefore(entry, logDiv.firstChild);
+      
+      // Keep only last 50 entries
+      while (logDiv.children.length > 50) {
+        logDiv.removeChild(logDiv.lastChild);
+      }
+    }
+
+    // Listen for review events
+    if (window.electronAPI && window.electronAPI.review) {
+      window.electronAPI.review.onReviewReady((data) => {
+        addLogEntry(`✅ Review ready: ${data.filePath} (${data.review.findings.length} findings)`, 'file-change');
+        // Auto-refresh if viewing reviews
+        const currentPath = document.getElementById('review-file-path').value.trim();
+        if (currentPath === data.filePath) {
+          getReview();
+        }
+      });
+      
+      window.electronAPI.review.onReviewStarted((item) => {
+        addLogEntry(`🔍 Review started: ${item.filePath}`, 'info');
+      });
+      
+      window.electronAPI.review.onReviewFailed((data) => {
+        addLogEntry(`❌ Review failed: ${data.item.filePath} - ${data.error}`, 'info');
+      });
+    }
+
+    // Listen for file change events
+    if (window.electronAPI && window.electronAPI.fileWatcher) {
+      window.electronAPI.fileWatcher.onFileChanged((filePath, workspacePath) => {
+        const relativePath = filePath.replace(workspacePath + '/', '');
+        addLogEntry(`📝 File changed: ${relativePath}`, 'file-change');
+      });
+      addLogEntry('File watcher listener registered', 'info');
+    }
+
+    // Load workspaces on page load
+    if (window.electronAPI && window.electronAPI.workspace) {
+      listWorkspaces();
+    }
+  </script>
+</body>
+</html>
+

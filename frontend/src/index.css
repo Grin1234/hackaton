@@ -1,0 +1,253 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* VS Code Dark Theme - Exact color matching */
+:root {
+  /* VS Code Workbench Colors */
+  --vscode-editor-background: #1e1e1e;
+  --vscode-sidebar-background: #252526;
+  --vscode-panel-background: #1e1e1e;
+  --vscode-titleBar-activeBackground: #1e1e1e;
+  --vscode-titleBar-inactiveBackground: #3c3c3c;
+  --vscode-activityBar-background: #2d2d30;
+  --vscode-tab-activeBackground: #1e1e1e;
+  --vscode-tab-inactiveBackground: #2d2d30;
+  
+  /* VS Code Border Colors */
+  --vscode-panel-border: #3e3e42;
+  --vscode-sidebar-border: #3e3e42;
+  --vscode-editorGroupHeader-border: #3e3e42;
+  
+  /* VS Code Text Colors */
+  --vscode-foreground: #cccccc;
+  --vscode-descriptionForeground: #858585;
+  --vscode-disabledForeground: #6a6a6a;
+  
+  /* VS Code Selection & Highlight */
+  --vscode-list-activeSelectionBackground: #094771;
+  --vscode-list-activeSelectionForeground: #ffffff;
+  --vscode-list-hoverBackground: #2a2d2e;
+  --vscode-list-inactiveSelectionBackground: #37373d;
+  --vscode-editor-selectionBackground: #264f78;
+  
+  /* VS Code Status Colors */
+  --vscode-button-background: #0e639c;
+  --vscode-button-hoverBackground: #1177bb;
+  --vscode-button-foreground: #ffffff;
+  --vscode-button-secondaryBackground: #3e3e42;
+  --vscode-button-secondaryHoverBackground: #454545;
+  
+  /* VS Code Badge Colors */
+  --vscode-badge-background: #4d4d4d;
+  --vscode-badge-foreground: #ffffff;
+  
+  /* VS Code Error/Warning/Info */
+  --vscode-errorForeground: #f48771;
+  --vscode-errorBackground: rgba(244, 135, 113, 0.1);
+  --vscode-warningForeground: #cca700;
+  --vscode-warningBackground: rgba(204, 167, 0, 0.1);
+  --vscode-infoForeground: #75beff;
+  --vscode-infoBackground: rgba(117, 190, 255, 0.1);
+  
+  /* Custom severity colors (maintaining readability) */
+  --severity-critical: #f48771;
+  --severity-critical-bg: rgba(244, 135, 113, 0.15);
+  --severity-high: #ffa726;
+  --severity-high-bg: rgba(255, 167, 38, 0.15);
+  --severity-medium: #ffd54f;
+  --severity-medium-bg: rgba(255, 213, 79, 0.15);
+  --severity-low: #75beff;
+  --severity-low-bg: rgba(117, 190, 255, 0.15);
+  
+  /* Category colors */
+  --category-security: #f48771;
+  --category-security-bg: rgba(244, 135, 113, 0.15);
+  --category-performance: #75beff;
+  --category-performance-bg: rgba(117, 190, 255, 0.15);
+  
+  /* Legacy compatibility */
+  --cursor-bg-primary: var(--vscode-editor-background);
+  --cursor-bg-secondary: var(--vscode-sidebar-background);
+  --cursor-bg-tertiary: var(--vscode-activityBar-background);
+  --cursor-border: var(--vscode-panel-border);
+  --cursor-text-primary: var(--vscode-foreground);
+  --cursor-text-secondary: var(--vscode-descriptionForeground);
+  --cursor-text-muted: var(--vscode-disabledForeground);
+  --cursor-accent: var(--vscode-button-background);
+  --cursor-accent-hover: var(--vscode-button-hoverBackground);
+  --cursor-hover: var(--vscode-list-hoverBackground);
+  --cursor-active: var(--vscode-list-activeSelectionBackground);
+  --cursor-selection: var(--vscode-editor-selectionBackground);
+  --cursor-error: var(--vscode-errorForeground);
+  --cursor-warning: var(--vscode-warningForeground);
+  --cursor-success: #89d185;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--vscode-editor-background);
+  color: var(--vscode-foreground);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* VS Code-style scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vscode-editor-background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vscode-panel-border);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vscode-descriptionForeground);
+}
+
+/* VS Code selection styling */
+::selection {
+  background-color: var(--vscode-editor-selectionBackground);
+  color: var(--vscode-foreground);
+}
+
+/* VS Code focus styles */
+:focus {
+  outline: 1px solid var(--vscode-button-background);
+  outline-offset: -1px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Button styles */
+button {
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Text wrapping utilities */
+.break-words {
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.text-wrap {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+/* VS Code-style panels */
+.vscode-panel {
+  background: var(--vscode-panel-background);
+  border-top: 1px solid var(--vscode-panel-border);
+  padding: 8px;
+}
+
+.vscode-sidebar {
+  background: var(--vscode-sidebar-background);
+  border-right: 1px solid var(--vscode-sidebar-border);
+}
+
+.vscode-list-item {
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+.vscode-list-item:hover {
+  background: var(--vscode-list-hoverBackground);
+}
+
+.vscode-list-item.active {
+  background: var(--vscode-list-activeSelectionBackground);
+  color: var(--vscode-list-activeSelectionForeground);
+}
+
+/* VS Code badge styles */
+.vscode-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.4;
+  white-space: nowrap;
+  background: var(--vscode-badge-background);
+  color: var(--vscode-badge-foreground);
+}
+
+/* Smooth transitions */
+.transition-smooth {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Pulse animation for highlights */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}

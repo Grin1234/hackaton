@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+// Pre-commit hook script - calls Electron app to review staged files
+import { reviewStagedFiles } from '../electron/services/workspaceManager.js';
+
+const repoPath = process.argv[2] || process.cwd();
+
+reviewStagedFiles(repoPath).then(result => {
+  if (result.success && result.canCommit) {
+    process.exit(0);
+  } else {
+    console.error('Code review blocked commit:', result.message || 'Critical issues found');
+    process.exit(1);
+  }
+}).catch(error => {
+  console.error('Error in pre-commit hook:', error);
+  process.exit(1);
+});
+
