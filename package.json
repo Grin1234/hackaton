@@ -7,6 +7,7 @@
   "private": true,
   "scripts": {
     "setup": "bash scripts/setup-arch.sh",
+    "setup:ubuntu": "bash scripts/setup-ubuntu.sh",
     "setup:complete": "bash scripts/complete-setup.sh",
     "verify": "bash scripts/verify-dependencies.sh",
     "test": "bash scripts/test-app.sh",

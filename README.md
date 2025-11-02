@@ -22,14 +22,16 @@ An AI-powered code review assistant that uses locally hosted Ollama LLM to analy
 
 ## Prerequisites
 
-- Arch Linux (or compatible Linux distribution)
+- Linux distribution (Arch Linux or Ubuntu/Debian)
 - Node.js 18+ and npm 9+
 - MongoDB
 - Ollama with a code model (codellama recommended)
 
 ## Installation
 
-### Automated Setup (Arch Linux)
+### Automated Setup
+
+#### Arch Linux
 
 Run the setup script to automatically install all dependencies:
 
@@ -37,13 +39,23 @@ Run the setup script to automatically install all dependencies:
 npm run setup
 ```
 
-This will install:
+#### Ubuntu/Debian
+
+Run the Ubuntu setup script to automatically install all dependencies:
+
+```bash
+npm run setup:ubuntu
+```
+
+Both scripts will install:
 - Node.js and npm
 - MongoDB
 - Ollama
 - Pull the default codellama model
 
 ### Manual Setup
+
+#### Arch Linux
 
 1. **Install Node.js and npm**:
    ```bash
@@ -66,6 +78,46 @@ This will install:
    curl -fsSL https://ollama.ai/install.sh | sh
    ```
 
+#### Ubuntu/Debian
+
+1. **Install Node.js and npm**:
+   ```bash
+   # Using NodeSource repository (recommended for Node.js 18+)
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+   
+   # Or use apt (may have older version)
+   sudo apt-get update
+   sudo apt-get install -y nodejs npm
+   ```
+
+2. **Install MongoDB**:
+   ```bash
+   # Install dependencies
+   sudo apt-get install -y wget curl gnupg
+   
+   # Add MongoDB GPG key
+   wget -qO - https://www.mongodb.org/static/pgp/server-7.0.asc | sudo apt-key add -
+   
+   # Add MongoDB repository
+   echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -cs)/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+   
+   # Install MongoDB
+   sudo apt-get update
+   sudo apt-get install -y mongodb-org
+   
+   # Start MongoDB service
+   sudo systemctl start mongod
+   sudo systemctl enable mongod
+   ```
+
+3. **Install Ollama**:
+   ```bash
+   curl -fsSL https://ollama.ai/install.sh | sh
+   ```
+
+#### Common Steps (All Distributions)
+
 4. **Pull a code model**:
    ```bash
    ollama pull codellama
@@ -85,6 +137,22 @@ This will install:
    ```
 
    Edit `backend/.env` and `frontend/.env` with your configuration.
+
+### GPU Support (Optional)
+
+For NVIDIA GPU acceleration on Ubuntu/Debian:
+
+```bash
+bash scripts/install-ollama-gpu-ubuntu.sh
+```
+
+For Arch Linux with GPU support:
+
+```bash
+bash scripts/install-ollama-gpu-arch.sh
+```
+
+Note: GPU acceleration requires NVIDIA GPU with CUDA toolkit installed.
 
 ## Usage
 
